@@ -1,5 +1,6 @@
 import { getStore } from '@netlify/blobs';
 import { anonymize, json, verifyToken } from '../lib/auth.mjs';
+import { loadClasses } from '../lib/classes.mjs';
 
 const MAX_BYTES = 4 * 1024 * 1024;
 const QUOTA_PER_IP = Number(process.env.QUOTA_PER_IP) || 60;
@@ -36,9 +37,10 @@ export default async (req, context) => {
   let body;
   try { body = await req.json(); } catch { return json(400, { error: 'json' }); }
 
-  let valid = false;
-  try { valid = verifyToken(body.token); } catch { return json(500, { error: 'config' }); }
-  if (!valid) return json(401, { error: 'session' });
+  let classId = null;
+  try { classId = verifyToken(body.token); } catch { return json(500, { error: 'config' }); }
+  const target = classId && loadClasses().find((c) => c.id === classId);
+  if (!target) return json(401, { error: 'session' });
 
   const bytes = Buffer.from(String(body.data || ''), 'base64');
   if (!bytes.length || bytes.length > MAX_BYTES) return json(413, { error: 'size' });
@@ -66,7 +68,7 @@ export default async (req, context) => {
     const { access_token } = await tokenRes.json();
 
     const boundary = 'cd' + Math.random().toString(16).slice(2);
-    const meta = JSON.stringify({ name, parents: [process.env.DRIVE_FOLDER_ID] });
+    const meta = JSON.stringify({ name, parents: [target.inbox] });
     const multipart = Buffer.concat([
       Buffer.from(`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n`),
       Buffer.from(`--${boundary}\r\nContent-Type: ${mime}\r\n\r\n`),

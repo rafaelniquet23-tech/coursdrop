@@ -3,6 +3,7 @@
   var CHECK_URL = '/.netlify/functions/check';
   var UPLOAD_URL = '/.netlify/functions/upload';
   var MAX_FILES = 10;
+  var DEFAULT_HINT = "Choisis d'où vient ta photo.";
 
   var $ = function(id){ return document.getElementById(id); };
   var cells = Array.prototype.slice.call(document.querySelectorAll('#pin input'));
@@ -11,7 +12,8 @@
   var views = { choose:$('choose'), picked:$('picked'), done:$('done') };
   var inputs = { camera:$('in-camera'), photos:$('in-photos'), files:$('in-files') };
   var thumbs = $('thumbs'), count = $('count'), sendmsg = $('sendmsg'), sendBtn = $('send'), lycee = $('lycee');
-  var fails = 0, blockedUntil = 0, token = '', driveUrl = '', checking = false;
+  var classHint = $('classname');
+  var fails = 0, blockedUntil = 0, token = '', driveUrl = '', className = '', checking = false;
   var queue = [], seq = 0, sending = false;
 
   function show(name){
@@ -36,11 +38,12 @@
     clearCells();
     lock.hidden = true; unlocked.hidden = false;
     lycee.hidden = !driveUrl;
+    classHint.textContent = className ? 'Classe : ' + className : DEFAULT_HINT;
     if (queue.length) render(); else show('choose');
   }
 
   function relock(text){
-    token = ''; driveUrl = '';
+    token = ''; driveUrl = ''; className = '';
     unlocked.hidden = true; lock.hidden = false;
     clearCells();
     msg.textContent = text;
@@ -66,6 +69,7 @@
       if (res.status === 200 && res.body.token){
         token = res.body.token; fails = 0;
         driveUrl = /^https:\/\/drive\.google\.com\//.test(res.body.driveUrl || '') ? res.body.driveUrl : '';
+        className = String(res.body.name || '').slice(0, 40);
         unlock();
         return;
       }

@@ -18,19 +18,24 @@ export function sameSecret(a, b) {
   return timingSafeEqual(ha, hb);
 }
 
-export function signToken(ttlSeconds) {
+// Jeton : "<expiration>.<id de classe>.<signature>"
+export function signToken(ttlSeconds, classId) {
   const exp = String(Math.floor(Date.now() / 1000) + ttlSeconds);
-  const sig = createHmac('sha256', signingKey()).update(exp).digest('base64url');
-  return `${exp}.${sig}`;
+  const body = `${exp}.${classId}`;
+  const sig = createHmac('sha256', signingKey()).update(body).digest('base64url');
+  return `${body}.${sig}`;
 }
 
+// Renvoie l'id de classe si le jeton est valable, sinon null.
 export function verifyToken(token) {
-  const [exp, sig] = String(token || '').split('.');
-  if (!exp || !sig || !/^\d+$/.test(exp) || Number(exp) < Date.now() / 1000) return false;
-  const good = createHmac('sha256', signingKey()).update(exp).digest('base64url');
+  const parts = String(token || '').split('.');
+  if (parts.length !== 3) return null;
+  const [exp, classId, sig] = parts;
+  if (!/^\d+$/.test(exp) || Number(exp) < Date.now() / 1000 || !/^[a-z0-9-]{1,30}$/.test(classId)) return null;
+  const good = createHmac('sha256', signingKey()).update(`${exp}.${classId}`).digest('base64url');
   const a = Buffer.from(sig);
   const b = Buffer.from(good);
-  return a.length === b.length && timingSafeEqual(a, b);
+  return a.length === b.length && timingSafeEqual(a, b) ? classId : null;
 }
 
 export function anonymize(value) {

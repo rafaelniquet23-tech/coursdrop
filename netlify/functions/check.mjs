@@ -1,4 +1,5 @@
 import { json, sameSecret, signToken } from '../lib/auth.mjs';
+import { loadClasses } from '../lib/classes.mjs';
 
 const SESSION_SECONDS = 6 * 60 * 60;
 
@@ -8,19 +9,26 @@ export default async (req) => {
   let body;
   try { body = await req.json(); } catch { return json(400, { error: 'json' }); }
 
-  const expected = process.env.UPLOAD_CODE;
-  if (!expected) return json(500, { error: 'config' });
+  const classes = loadClasses();
+  if (!classes.length) return json(500, { error: 'config' });
 
-  if (!sameSecret(body.code, expected)) {
+  let match = null;
+  for (const c of classes) {
+    if (sameSecret(body.code, c.code) && !match) match = c;
+  }
+
+  if (!match) {
     await new Promise((r) => setTimeout(r, 600));
     return json(403, { error: 'code' });
   }
 
-  const link = process.env.LYCEE_URL || '';
-  const driveUrl = /^https:\/\/drive\.google\.com\//.test(link) ? link : '';
-
   try {
-    return json(200, { token: signToken(SESSION_SECONDS), expiresIn: SESSION_SECONDS, driveUrl });
+    return json(200, {
+      token: signToken(SESSION_SECONDS, match.id),
+      expiresIn: SESSION_SECONDS,
+      name: match.name,
+      driveUrl: match.view,
+    });
   } catch {
     return json(500, { error: 'config' });
   }
