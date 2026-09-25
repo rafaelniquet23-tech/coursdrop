@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex, nofollow">
+<title>CoursDrop</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#F5F5F7;
+    --surface:#FFFFFF;
+    --tile:#F5F5F7;
+    --text:#1D1D1F;
+    --muted:#6E6E73;
+    --accent:#0071E3;
+    --accent-ink:#FFFFFF;
+    --g1:#0071E3;--g2:#1AA7EC;--g3:#12B886;
+    --border:rgba(0,0,0,0.09);
+    --success:#1FA35C;
+    --danger:#D62F3A;
+    --shadow:0 24px 48px -24px rgba(0,0,0,0.22);
+    --sat:78%;--lit:44%;--tint:0.10;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#000000;--surface:#161617;--tile:#1D1D1F;
+      --text:#F5F5F7;--muted:#98989D;
+      --accent:#2997FF;--accent-ink:#000000;
+      --g1:#2997FF;--g2:#5AC8FA;--g3:#4FE3B5;
+      --border:rgba(255,255,255,0.12);
+      --success:#30D158;--danger:#FF6B72;
+      --shadow:0 24px 48px -24px rgba(0,0,0,0.7);
+      --sat:85%;--lit:66%;--tint:0.16;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#000000;--surface:#161617;--tile:#1D1D1F;
+    --text:#F5F5F7;--muted:#98989D;
+    --accent:#2997FF;--accent-ink:#000000;
+    --g1:#2997FF;--g2:#5AC8FA;--g3:#4FE3B5;
+    --border:rgba(255,255,255,0.12);
+    --success:#30D158;--danger:#FF6B72;
+    --shadow:0 24px 48px -24px rgba(0,0,0,0.7);
+    --sat:85%;--lit:66%;--tint:0.16;
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  [hidden]{display:none!important;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  @supports (height:100dvh){ body{min-height:100dvh;} }
+  :focus-visible{outline:3px solid var(--accent);outline-offset:3px;}
+
+  .frame{
+    width:100%;
+    min-height:100vh;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    background:var(--surface);
+    container-type:inline-size;
+  }
+  @supports (height:100dvh){ .frame{min-height:100dvh;} }
+  .wrap{padding:28px 22px 24px;max-width:1200px;margin:0 auto;}
+  @media (min-width:800px) and (orientation:landscape){ .wrap{padding:44px 48px 32px;} }
+
+  .mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',ui-monospace,monospace;
+    font-size:12px;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--accent);font-weight:500;margin:0 0 14px;
+  }
+
+  .layout{
+    display:grid;gap:22px;
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"hero" "panel" "steps" "subjects";
+  }
+  @media (min-width:800px) and (orientation:landscape){
+    .layout{
+      column-gap:40px;row-gap:28px;
+      grid-template-columns:minmax(0,1.15fr) minmax(0,0.85fr);
+      grid-template-areas:"hero panel" "steps panel" "subjects subjects";
+    }
+  }
+
+  .hero{grid-area:hero;position:relative;text-align:center;padding-top:8px;isolation:isolate;}
+  @media (min-width:800px) and (orientation:landscape){ .hero{text-align:left;padding-top:0;} }
+  .hero::before{
+    content:"";position:absolute;z-index:-1;
+    left:50%;top:-30px;width:120%;height:260px;transform:translateX(-50%);
+    background:radial-gradient(closest-side,color-mix(in srgb,var(--accent) 30%,transparent),transparent);
+    filter:blur(28px);opacity:.8;
+    animation:drift 10s ease-in-out infinite alternate;
+  }
+  @keyframes drift{
+    from{transform:translateX(-56%) scale(1);}
+    to{transform:translateX(-44%) scale(1.12);}
+  }
+  .mark{
+    width:56px;height:56px;border-radius:16px;margin:0 auto 22px;
+    background:linear-gradient(155deg,var(--g1),var(--g2));
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:var(--shadow);
+  }
+  @media (min-width:800px) and (orientation:landscape){ .mark{margin:0 0 22px;} }
+  .mark svg{width:28px;height:28px;}
+  h1{
+    font-size:clamp(30px,9cqi,46px);
+    font-weight:800;line-height:1.06;letter-spacing:-0.025em;
+    margin:0 0 16px;text-wrap:balance;
+  }
+  .grad{
+    background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .sub{
+    font-size:clamp(15px,4.4cqi,18px);line-height:1.55;color:var(--muted);
+    margin:0 auto;max-width:460px;text-wrap:pretty;
+  }
+  @media (min-width:800px) and (orientation:landscape){ .sub{margin:0;} }
+
+  .panel{
+    grid-area:panel;align-self:start;
+    background:var(--tile);border:1px solid var(--border);
+    border-radius:26px;padding:28px 22px;text-align:center;
+  }
+  .panel h2{font-size:21px;font-weight:800;letter-spacing:-0.01em;margin:0 0 6px;}
+  .hint{font-size:14px;line-height:1.5;color:var(--muted);margin:0 0 22px;}
+
+  .pin{display:flex;gap:8px;min-width:0;min-inline-size:0;width:100%;justify-content:center;border:0;padding:0;margin:0 0 14px;}
+  .pin input{
+    flex:1 1 0;max-width:56px;height:64px;min-width:0;
+    font-family:'IBM Plex Mono',ui-monospace,monospace;
+    font-size:28px;font-weight:500;text-align:center;
+    border-radius:16px;border:1.5px solid var(--border);
+    background:var(--surface);color:var(--text);
+    caret-color:var(--accent);
+    transition:border-color .15s, transform .15s;
+  }
+  .pin input:focus{border-color:var(--accent);transform:translateY(-1px);outline:none;box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent);}
+  .pin input.filled{border-color:color-mix(in srgb,var(--accent) 55%,var(--border));}
+  .msg{min-height:20px;margin:0 0 14px;font-size:13px;font-weight:600;color:var(--danger);}
+
+  .btn{
+    font-family:'Manrope',sans-serif;font-size:16px;font-weight:700;
+    min-height:52px;padding:0 30px;border-radius:100px;border:0;cursor:pointer;
+    background:var(--accent);color:var(--accent-ink);
+    transition:transform .15s, filter .15s;
+  }
+  .btn:hover{filter:brightness(1.06);}
+  .btn:active{transform:scale(.97);}
+  .btn:disabled{opacity:.55;cursor:default;filter:none;transform:none;}
+  .btn.block{width:100%;}
+  .btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--border);margin-top:10px;}
+
+  .shake{animation:shake .42s;}
+  @keyframes shake{
+    10%,90%{transform:translateX(-2px);}20%,80%{transform:translateX(4px);}
+    30%,50%,70%{transform:translateX(-7px);}40%,60%{transform:translateX(7px);}
+  }
+
+  .ok-ring{width:64px;height:64px;margin:0 auto 16px;}
+  .ok-ring circle{fill:var(--success);animation:pop .4s ease both;transform-origin:center;}
+  .ok-ring path{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;
+    stroke-dasharray:30;stroke-dashoffset:30;animation:draw .4s .25s ease forwards;}
+  @keyframes pop{from{transform:scale(.4);opacity:0;}to{transform:scale(1);opacity:1;}}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  .picker-note{font-size:13px;color:var(--muted);margin:14px 0 0;line-height:1.5;}
+  .picker-note.warn{color:var(--danger);font-weight:600;}
+
+  .opts{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr));}
+  .opt{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    min-height:96px;padding:14px 10px;border-radius:18px;
+    border:1.5px solid var(--border);background:var(--surface);color:var(--text);
+    font-family:'Manrope',sans-serif;font-size:14px;font-weight:600;line-height:1.25;
+    cursor:pointer;transition:transform .15s,border-color .15s;
+  }
+  .opt:hover{border-color:var(--accent);}
+  .opt:active{transform:scale(.97);}
+  .opt svg{width:26px;height:26px;fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .opt.pulse{animation:shake .42s;border-color:var(--accent);}
+  .opt:last-child:nth-child(odd){grid-column:1/-1;}
+
+  .thumbs{list-style:none;margin:0 0 14px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+  .thumbs li{
+    position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;
+    background:var(--surface);border:1.5px solid var(--border);
+    display:grid;place-items:center;font-size:11px;color:var(--muted);padding:4px;word-break:break-all;
+  }
+  .thumbs img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;}
+  .thumbs li.sending{opacity:.5;}
+  .thumbs li.ok{border-color:var(--success);}
+  .thumbs li.err{border-color:var(--danger);}
+  .thumbs .rm{position:absolute;top:0;right:0;width:44px;height:44px;border:0;background:transparent;cursor:pointer;}
+  .thumbs .rm::before{
+    content:"\00d7";position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:50%;
+    background:rgba(0,0,0,.62);color:#fff;font-size:17px;line-height:24px;text-align:center;
+  }
+
+  .steps{grid-area:steps;display:grid;gap:10px;margin:0;padding:0;list-style:none;}
+  .step{
+    display:grid;grid-template-columns:34px 1fr;gap:14px;align-items:start;
+    padding:14px 16px;border-radius:18px;background:var(--tile);border:1px solid var(--border);
+  }
+  .step .n{
+    width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+    background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);
+    font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:14px;font-variant-numeric:tabular-nums;
+  }
+  .step h3{font-size:15.5px;font-weight:700;margin:2px 0 2px;}
+  .step p{font-size:13.5px;line-height:1.5;color:var(--muted);margin:0;}
+
+  .subjects{grid-area:subjects;}
+  .subjects h2{font-size:12px;font-family:'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:6px 0 12px;}
+  .grid{list-style:none;margin:0;padding:0;display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr));}
+  @media (min-width:800px) and (orientation:landscape){ .grid{grid-template-columns:repeat(5,minmax(0,1fr));} }
+  .tile{
+    display:flex;align-items:center;gap:10px;min-height:56px;padding:10px 12px;border-radius:16px;
+    background:hsl(var(--hue) 80% 50% / var(--tint));
+    font-size:13.5px;font-weight:600;line-height:1.25;
+  }
+  .tile svg{
+    flex:none;width:24px;height:24px;fill:none;stroke:hsl(var(--hue) var(--sat) var(--lit));
+    stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+  }
+  footer{text-align:center;padding-top:26px;color:var(--muted);font-size:12px;font-family:'IBM Plex Mono',monospace;}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;}
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+<div class="wrap">
+<main class="layout">
+
+  <header class="hero">
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"><path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V8a1 1 0 011-1z"/><circle cx="12" cy="13" r="3.4"/></svg>
+    </div>
+    <p class="eyebrow">Lycée · Partage de cours</p>
+    <h1>Une photo de cours,<br><span class="grad">rangée toute seule.</span></h1>
+    <p class="sub">Prends le tableau en photo, entre le code de la classe : elle arrive dans le Drive et file dans la bonne matière.</p>
+  </header>
+
+  <section class="panel" id="panel" aria-live="polite">
+    <div id="lock">
+      <h2>Débloquer l'envoi</h2>
+      <p class="hint">Entre le code à 6 chiffres donné par ta classe.</p>
+      <fieldset class="pin" id="pin" aria-label="Code à 6 chiffres">
+        <input id="d1" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="Chiffre 1">
+        <input id="d2" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="Chiffre 2">
+        <input id="d3" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="Chiffre 3">
+        <input id="d4" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="Chiffre 4">
+        <input id="d5" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="Chiffre 5">
+        <input id="d6" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="Chiffre 6">
+      </fieldset>
+      <p class="msg" id="msg" role="alert"></p>
+      <button class="btn block" id="verify" type="button">Déverrouiller</button>
+    </div>
+
+    <div id="unlocked" hidden>
+
+      <div id="choose">
+        <h2>Ajouter une photo</h2>
+        <p class="hint">Choisis d'où vient ta photo.</p>
+        <div class="opts">
+          <button class="opt" type="button" data-src="camera">
+            <svg viewBox="0 0 24 24"><path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V8a1 1 0 011-1z"/><circle cx="12" cy="13" r="3.4"/></svg>
+            Prendre une photo
+          </button>
+          <button class="opt" type="button" data-src="photos">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/></svg>
+            Photothèque
+          </button>
+          <button class="opt" type="button" data-src="files">
+            <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            <span id="files-label">Fichiers</span>
+          </button>
+        </div>
+        <p class="picker-note">Seules les photos sont acceptées (10 maximum à la fois).</p>
+        <button class="btn block ghost" id="back" type="button" hidden>Revenir à mes photos</button>
+      </div>
+
+      <div id="picked" hidden>
+        <h2>Photos à envoyer</h2>
+        <p class="hint" id="count"></p>
+        <ul class="thumbs" id="thumbs"></ul>
+        <p class="msg" id="sendmsg" role="alert"></p>
+        <button class="btn block" id="send" type="button">Envoyer</button>
+        <button class="btn block ghost" id="more" type="button">Ajouter d'autres photos</button>
+      </div>
+
+      <div id="done" hidden>
+        <svg class="ok-ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30"/><path d="M19 33l9 9 17-19"/></svg>
+        <h2>Photos envoyées</h2>
+        <p class="hint">Elles seront rangées dans la bonne matière d'ici quelques heures.</p>
+        <button class="btn block" id="again" type="button">Envoyer d'autres photos</button>
+      </div>
+      <button class="btn block ghost" id="lycee" type="button" hidden>Ouvrir le Drive Lycée</button>
+
+    </div>
+  </section>
+
+  <ol class="steps">
+    <li class="step"><span class="n">1</span><div><h3>Prends la photo</h3><p>Le tableau, un poly, une fiche du prof, bien cadrée et lisible.</p></div></li>
+    <li class="step"><span class="n">2</span><div><h3>Entre le code</h3><p>Il filtre les envois qui ne viennent pas de la classe.</p></div></li>
+    <li class="step"><span class="n">3</span><div><h3>Envoie</h3><p>La photo est triée par matière dans le Drive Lycée, en quelques heures.</p></div></li>
+  </ol>
+
+  <section class="subjects">
+    <h2>Matières classées</h2>
+    <ul class="grid">
+      <li class="tile" style="--hue:212"><svg viewBox="0 0 24 24"><path d="M4 7h6M7 4v6M14 17h6M6 15l4 4M10 15l-4 4M14 7h6"/></svg>Maths</li>
+      <li class="tile" style="--hue:350"><svg viewBox="0 0 24 24"><path d="M4 5h6a2 2 0 012 2v12a2 2 0 00-2-2H4zM20 5h-6a2 2 0 00-2 2v12a2 2 0 012-2h6z"/></svg>Français</li>
+      <li class="tile" style="--hue:28"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>Histoire-Géo</li>
+      <li class="tile" style="--hue:262"><svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>SES</li>
+      <li class="tile" style="--hue:172"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V3"/></svg>Physique-Chimie</li>
+      <li class="tile" style="--hue:190"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"/><ellipse cx="12" cy="12" rx="9" ry="3.8"/><ellipse cx="12" cy="12" rx="9" ry="3.8" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.8" transform="rotate(120 12 12)"/></svg>Ens. Scientifique</li>
+      <li class="tile" style="--hue:228"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>LV1 Anglais</li>
+      <li class="tile" style="--hue:12"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4zM8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01"/></svg>LV2 Espagnol</li>
+      <li class="tile" style="--hue:142"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>EMC</li>
+      <li class="tile" style="--hue:320"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 100 18c1.5 0 2-1 1.5-2.2-.5-1.3.4-2.3 1.7-2.3H17a4 4 0 004-4c0-5-4-9.5-9-9.5zM7.5 11h.01M10 7.5h.01M14.5 7.5h.01"/></svg>Arts plastiques</li>
+    </ul>
+  </section>
+
+</main>
+<footer>CoursDrop · Lycée de Rafael</footer>
+</div>
+</div>
+
+<input type="file" id="in-camera" accept="image/*" capture="environment" hidden>
+<input type="file" id="in-photos" accept="image/*" multiple hidden>
+<input type="file" id="in-files" multiple hidden>
+
+<script src="/app.js" defer></script>
+</body>
+</html>
